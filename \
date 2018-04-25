@@ -1,0 +1,34 @@
+#! usr/bin/env python3
+from producer import producer
+
+def prompt_message(msg = None, group = None, topic = None,options = None):
+    if not topic:
+        topic = input("What topic are you sending to? ")
+    if not group:
+        group = input("What group is it coming from? ")
+    if not msg:
+        msg = input("Please enter messasge content: ")
+    if options:
+        if msg in options:
+            return topic,group,msg
+        else:
+            return False
+    return topic,group,msg
+
+def main():
+    cont = True
+    while cont:
+        msg = prompt_message()
+        if msg:
+            topic = msg[0]
+            group = msg[1]
+            msg = msg[2]
+            msg = b"{}".format(msg)
+#            producer.send_messages(topic,group,bin(msg))
+        else:
+            break
+    return False
+
+if __name__ == "__main__":
+    main()
+
