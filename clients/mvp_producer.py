@@ -11,16 +11,21 @@ import json
 
 def get_mvp_data():
     get_cursor()
-    query = "select * from parts limit 1;"
+    query = "select * from parts limit 5;"
     data = execute_query(query)
     close_cursor()
     return data
 
 def send_to_test_topic():
-    data = get_mvp_data()
+    data = get_mvp_data()[0]
     producer = KafkaProducer(bootstrap_servers=['54.218.31.15:9092'],value_serializer=lambda v: json.dumps(v).encode('utf-8'))
-    producer.send("test",json.dumps(data))
+    for record in data:
+        future = producer.send("test",json.dumps(record))
+        try:
+            record_metadata = future.get(timeout=10)
+            print(record_metadata)
+        except KafkaError as e:
+            print(e)
 
 if __name__ == '__main__':
-    print(get_mvp_data())
     send_to_test_topic()
