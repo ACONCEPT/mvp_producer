@@ -1,5 +1,7 @@
 #! usr/bin/env python3
 import psycopg2
+import os
+
 """
 functions in module :
 	get_cursor
@@ -10,8 +12,9 @@ functions in module :
 """
 
 def get_conn_string():
-    with open("../postgres_connection_string","r") as f:
-        return f.read().strip()
+    string = os.environ.get("PYTHON_POSTGRES_CONN")
+    return string
+
 
 def get_cursor():
     global CURSOR
