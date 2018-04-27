@@ -14,12 +14,19 @@ def send_to_test_topic():
     data, header = get_mvp_data()
     producer = KafkaProducer(bootstrap_servers=['54.218.31.15:9092'],value_serializer=lambda v: json.dumps(v).encode('utf-8'))
     for record in data:
+        print("=" * 50)
+        print(" "*20 + "NEW SQL RECORD")
+        print("=" * 50)
         record = {str(h.name):str(v) for h,v in zip(header,record)}
+        for key, val in record.items():
+            print("COlUMN : {} ".format(key))
+            print("VALUE ; {} ".format(value))
+        print("=" * 50)
+        print("=" * 50)
         record["table"] = "parts"
         future = producer.send("test",json.dumps(record))
         try:
             record_metadata = future.get(timeout=10)
-            print(record_metadata)
         except KafkaError as e:
             print(e)
 
