@@ -5,14 +5,19 @@ import json
 
 def get_mvp_data():
     get_cursor()
-    query = "select * from parts limit 5;"
+    query = "select * from orders limit 5;"
     data = execute_query(query)
     close_cursor()
     return data
 
-def send_to_test_topic():
+def json_serializer(v):
+    return json.dumps(v).encode("utf-8")
+
+def send_to_test_topic(bootstrap_servers):
     data, header = get_mvp_data()
-    producer = KafkaProducer(bootstrap_servers=['54.218.31.15:9092'],value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+    producer = KafkaProducer(bootstrap_servers=bootstrap_servers,\
+                             value_serializer=json_serializer)
+
     for record in data:
         print("=" * 50)
         print(" "*20 + "NEW SQL RECORD")
@@ -21,8 +26,6 @@ def send_to_test_topic():
         for key, val in record.items():
             print("COlUMN : {} ".format(key))
             print("VALUE ; {} ".format(value))
-        print("=" * 50)
-        print("=" * 50)
         record["table"] = "parts"
         future = producer.send("test",json.dumps(record))
         try:
@@ -31,4 +34,7 @@ def send_to_test_topic():
             print(e)
 
 if __name__ == '__main__':
-    send_to_test_topic()
+    with open("~/clusterinfo" ,"r") as f:
+        bootstrap_servers = ["{}:9092".format(x) for x in f.readlines()]
+
+    send_to_test_topic(bootstrap_servers)
